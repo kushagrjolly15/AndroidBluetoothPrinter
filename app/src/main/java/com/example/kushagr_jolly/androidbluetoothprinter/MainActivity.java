@@ -11,6 +11,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Button;
+
+import com.example.kushagr_jolly.androidbluetoothprinter.util.DateUtil;
+import com.example.kushagr_jolly.androidbluetoothprinter.util.FontDefine;
+import com.example.kushagr_jolly.androidbluetoothprinter.util.Printer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,7 +27,6 @@ public class MainActivity extends Activity {
     TextView myLabel;
 
     // will enable user to enter any text to be printed
-    EditText myTextbox;
 
     // android built in classes for bluetooth operations
     BluetoothAdapter mBluetoothAdapter;
@@ -48,7 +52,6 @@ public class MainActivity extends Activity {
 
 // text label and input box
         myLabel = (TextView) findViewById(R.id.label);
-        myTextbox = (EditText) findViewById(R.id.entry);
         // open bluetooth connection
         openButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -94,14 +97,84 @@ public class MainActivity extends Activity {
         }
     }
     // this will send text data to be printed by the bluetooth printer
-    void sendData() throws IOException {
+    void sendData() throws IOException{
         try {
 
             // the text typed by the user
-            String msg = myTextbox.getText().toString();
-            msg += "\n";
+                String titleStr	= "STRUK PEMBAYARAN TAGIHAN LISTRIK" + "\n\n";
 
-            mmOutputStream.write(msg.getBytes());
+                StringBuilder contentSb	= new StringBuilder();
+
+                contentSb.append("IDPEL     : 435353535435353" + "\n");
+                contentSb.append("NAMA      : LORENSIUS WLT" + "\n");
+                contentSb.append("TRF/DAYA  : 50/12244 VA" + "\n");
+                contentSb.append("BL/TH     : 02/14" + "\n");
+                contentSb.append("ST/MTR    : 0293232" + "\n");
+                contentSb.append("RP TAG    : Rp. 100.000" + "\n");
+                contentSb.append("JPA REF   :" + "\n");
+
+                StringBuilder content2Sb = new StringBuilder();
+
+                content2Sb.append("ADM BANK  : Rp. 1.600" + "\n");
+                content2Sb.append("RP BAYAR  : Rp. 101.600,00" + "\n");
+
+                String jpaRef	= "XXXX-XXXX-XXXX-XXXX" + "\n";
+                String message	= "PLN menyatakan struk ini sebagai bukti pembayaran yang sah." + "\n";
+                String message2	= "Rincian tagihan dapat diakses di www.pln.co.id Informasi Hubungi Call Center: "
+                        + "123 Atau Hub PLN Terdekat: 444" + "\n";
+
+                long milis		= System.currentTimeMillis();
+                String date		= DateUtil.timeMilisToString(milis, "dd-MM-yy / HH:mm")  + "\n\n";
+
+                byte[] titleByte	= Printer.printfont(titleStr, FontDefine.FONT_24PX, FontDefine.Align_CENTER,
+                        (byte) 0x1A, PocketPos.LANGUAGE_ENGLISH);
+
+                byte[] content1Byte	= Printer.printfont(contentSb.toString(), FontDefine.FONT_24PX,FontDefine.Align_LEFT,
+                        (byte)0x1A, PocketPos.LANGUAGE_ENGLISH);
+
+                byte[] refByte		= Printer.printfont(jpaRef, FontDefine.FONT_24PX,FontDefine.Align_CENTER,  (byte)0x1A,
+                        PocketPos.LANGUAGE_ENGLISH);
+
+                byte[] messageByte	= Printer.printfont(message, FontDefine.FONT_24PX,FontDefine.Align_CENTER,  (byte)0x1A,
+                        PocketPos.LANGUAGE_ENGLISH);
+
+                byte[] content2Byte	= Printer.printfont(content2Sb.toString(), FontDefine.FONT_24PX,FontDefine.Align_LEFT,
+                        (byte)0x1A, PocketPos.LANGUAGE_ENGLISH);
+
+                byte[] message2Byte	= Printer.printfont(message2, FontDefine.FONT_24PX,FontDefine.Align_CENTER,  (byte)0x1A,
+                        PocketPos.LANGUAGE_ENGLISH);
+
+                byte[] dateByte		= Printer.printfont(date, FontDefine.FONT_24PX,FontDefine.Align_LEFT, (byte)0x1A,
+                        PocketPos.LANGUAGE_ENGLISH);
+
+                byte[] totalByte	= new byte[titleByte.length + content1Byte.length + refByte.length + messageByte.length +
+                        content2Byte.length + message2Byte.length + dateByte.length];
+
+
+                int offset = 0;
+                System.arraycopy(titleByte, 0, totalByte, offset, titleByte.length);
+                offset += titleByte.length;
+
+                System.arraycopy(content1Byte, 0, totalByte, offset, content1Byte.length);
+                offset += content1Byte.length;
+
+                System.arraycopy(refByte, 0, totalByte, offset, refByte.length);
+                offset += refByte.length;
+
+                System.arraycopy(messageByte, 0, totalByte, offset, messageByte.length);
+                offset += messageByte.length;
+
+                System.arraycopy(content2Byte, 0, totalByte, offset, content2Byte.length);
+                offset += content2Byte.length;
+
+                System.arraycopy(message2Byte, 0, totalByte, offset, message2Byte.length);
+                offset += message2Byte.length;
+
+                System.arraycopy(dateByte, 0, totalByte, offset, dateByte.length);
+
+                byte[] senddata = PocketPos.FramePack(PocketPos.FRAME_TOF_PRINT, totalByte, 0, totalByte.length);
+
+            mmOutputStream.write(senddata);
 
             // tell the user data were sent
             myLabel.setText("Data sent.");

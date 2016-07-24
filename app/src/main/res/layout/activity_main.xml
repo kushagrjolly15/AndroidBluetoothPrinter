@@ -8,36 +8,34 @@
         android:id="@+id/label"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Type here:" />
+         />
 
-    <EditText
-        android:id="@+id/entry"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/label" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/entry">
 
         <Button
             android:id="@+id/open"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dip"
-            android:text="Open" />
+            android:text="Open"
+            android:layout_below="@+id/label"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="33dp" />
 
         <Button
             android:id="@+id/send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send" />
+            android:text="Send"
+            android:layout_alignTop="@+id/open"
+            android:layout_centerHorizontal="true" />
 
         <Button
             android:id="@+id/close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Close" />
-    </LinearLayout>
+            android:text="Close"
+            android:layout_alignTop="@+id/open"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
 </RelativeLayout>
